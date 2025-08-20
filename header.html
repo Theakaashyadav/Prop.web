@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Revestate — Find Your Home</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #1C1F33;
+  --accent: #D4AF37;
+  --background: #FAF9F6;
+  --text: #333;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--background);
+  color: var(--text);
+  margin: 0;
+  padding-top: 100px; /* ✅ space for fixed header */
+}
+
+/* Header */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* ✅ align everything left */
+  padding: 0.6rem 1rem;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  gap: 1rem;
+}
+
+header .logo-box {
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 0.8rem;
+  font-weight: bold;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+header .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1.5rem; /* ✅ spacing between logo and filters */
+}
+
+header .brand-text {
+  line-height: 1.2;
+}
+
+header .brand-text div:first-child {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+header .brand-text div:last-child {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* Filter section inside header */
+.header-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start; /* ✅ align left */
+  gap: 0.5rem;
+  flex: 1;
+}
+
+/* Search */
+.search-form {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50px;
+  overflow: hidden;
+  min-width: 180px;
+  max-width: 280px;
+}
+
+.search-form input {
+  border: none;
+  outline: none;
+  padding: 0.4rem 0.8rem;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.search-form button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+/* Select dropdowns */
+select {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Buttons */
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-actions button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.apply-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+
+.clear-btn {
+  background: #eee;
+  color: #333;
+  border: 1px solid #ccc;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .header-filters {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-form {
+    width: 100%;
+    max-width: 100%;
+  }
+  select, .filter-actions {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <!-- Logo + Branding -->
+    <div class="brand">
+      <div class="logo-box">RE</div>
+      <div class="brand-text">
+        <div>Revestate</div>
+        <div>Find your dream home</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="header-filters">
+      <form class="search-form" action="#" onsubmit="return false;">
+        <input type="search" id="searchInput" placeholder="Search locality..." />
+        <button type="submit">🔍</button>
+      </form>
+
+      <select id="budgetFilter">
+        <option value="">Budget</option>
+        <option value="under10">Under ₹10k</option>
+        <option value="10-25">₹10k - ₹25k</option>
+        <option value="25-50">₹25k - ₹50k</option>
+        <option value="50plus">Above ₹50k</option>
+      </select>
+
+      <!-- <select id="propertyType">
+  <option value="">Type</option>
+  <option value="flat">Flat</option>
+  <option value="pg">PG</option>
+  <option value="apartment">Apartment</option>
+  <option value="floor">Floor</option>
+</select> -->
+
+
+      <select id="bhkFilter">
+        <option value="">BHK</option>
+        <option value="1">1 BHK</option>
+        <option value="2">2 BHK</option>
+        <option value="3">3 BHK</option>
+        <option value="4plus">4+ BHK</option>
+      </select>
+
+      <select id="furnishFilter">
+        <option value="">Furnished</option>
+        <option value="fully">Fully Furnished</option>
+        <option value="semi">Semi-Furnished</option>
+        <option value="unfurnished">Unfurnished</option>
+      </select>
+
+      <select id="houseType">
+        <option value="">Residence</option>
+       <option value="independent">Independent</option>
+       <option value="with-owner">With Owner</option>
+       <option value="sharing">Sharing</option>
+      </select>
+
+
+      <select id="tenantFilter">
+        <option value="">Available For</option>
+        <option value="family">Family</option>
+        <option value="bachelor">Bachelor</option>
+        <option value="girls">Girls</option>
+        <option value="boys">Boys</option>
+      </select>
+
+      <!-- <select id="sortFilter">
+        <option value="">Sort By</option>
+        <option value="newest">Newest First</option>
+        <option value="low-high">Price: Low to High</option>
+        <option value="high-low">Price: High to Low</option>
+      </select> -->
+
+      <div class="filter-actions">
+        <button id="clearFiltersBtn" class="clear-btn" type="button">Clear</button>
+      </div>
+    </div>
+  </header>
+</body>
+</html>

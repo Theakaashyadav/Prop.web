@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Property Listings</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    padding: 20px;
+}
+h1 { text-align: center; color: #333; }
+
+/* Preview Listings Grid */
+.preview {
+    background: white; padding: 20px;
+    border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+#listing-preview {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+.listing {
+    background: #fff; border-radius: 8px;
+    overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s; position: relative;
+}
+.listing:hover { transform: scale(1.03); }
+.listing img {
+    width: 100%; height: 160px; object-fit: contain;
+    background: #f5f5f5; cursor: pointer;
+}
+.listing-details {
+    padding: 10px; text-align: center;
+}
+.price { color: #27ae60; font-weight: bold; }
+
+/* Action Buttons */
+.card-actions {
+    display: flex; justify-content: space-between;
+    padding: 8px; gap: 5px;
+}
+.card-actions button {
+    flex: 1;
+    padding: 6px; font-size: 12px;
+    border: none; border-radius: 4px;
+    cursor: pointer; color: white;
+}
+.edit-btn { background: #3498db; }
+.delete-btn { background: #e74c3c; }
+.edit-btn:hover { background: #2980b9; }
+.delete-btn:hover { background: #c0392b; }
+
+/* Forms Section */
+.forms {
+    background: white; padding: 20px;
+    border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-width: 800px; margin: auto;
+}
+.forms h2 { margin-top: 0; color: #444; }
+label { display: block; margin: 10px 0 5px; font-weight: bold; }
+input, select, textarea, button {
+    width: 100%; padding: 10px; margin-bottom: 15px;
+    border-radius: 6px; border: 1px solid #ccc; font-size: 14px;
+}
+button {
+    background: #27ae60; color: white;
+    font-weight: bold; border: none; cursor: pointer;
+    transition: 0.2s;
+}
+button:hover { background: #219150; }
+</style>
+</head>
+<body>
+
+<h1>Admin Panel - Manage Listings & Ads</h1>
+
+<!-- Preview Grid -->
+<div class="preview">
+    <h2>Preview Listings</h2>
+    <div id="listing-preview"></div>
+</div>
+
+<div class="forms">
+    <h2 id="form-title">Add Property</h2>
+    <form id="property-form">
+        <input type="hidden" id="editIndex">
+
+        <label>BHK</label>
+        <select id="bhk">
+            <option>1 BHK</option><option>2 BHK</option>
+            <option>3 BHK</option><option>4 BHK</option>
+        </select>
+
+        <label>Location</label>
+        <input type="text" id="location" required>
+
+        <label>Price</label>
+        <input type="number" id="price" required>
+
+        <label>Type</label>
+        <select id="type">
+            <option>Flat</option>
+            <option>PG</option><option>Apartment</option><option>Floor</option>
+        </select>
+
+        <label>Tenant Type</label>
+        <select id="tenantType">
+            <option>Bachelor</option><option>Family</option>
+            <option>Girls</option><option>Boys</option>
+        </select>
+
+        <label>Furnishing</label>
+        <select id="furnished">
+            <option>Unfurnished</option><option>Semi-furnished</option>
+            <option>Fully furnished</option>
+        </select>
+
+        <label>Residence</label>
+        <select id="houseType">
+            <option>Independent</option><option>With Owner</option><option>Sharing</option>
+        </select>
+
+        <label>Availability</label>
+        <select id="availability">
+            <option>Immediate</option><option>5 Days</option><option>10 Days</option>
+            <option>15 Days</option><option>30 Days</option>
+        </select>
+
+        <label>Beds</label>
+        <select id="beds"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+
+        <label>Bathrooms</label>
+        <select id="bathrooms"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+
+        <label>Balconies</label>
+        <select id="balconies"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+
+        <label>Floor</label>
+        <select id="floor"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+
+        <label>Parking</label>
+        <select id="parking"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+
+        <label>Upload Images</label>
+        <input type="file" id="imageFile" accept="image/*" multiple>
+
+        <button type="submit">💾 Save Property</button>
+    </form>
+</div>
+
+<h2>Manage Ads</h2>
+<label>Left Ad Content</label>
+<textarea id="ad-left" rows="3"></textarea>
+<label>Right Ad Content</label>
+<textarea id="ad-right" rows="3"></textarea>
+<button onclick="saveAds()">💾 Save Ads</button>
+
+<h2>In-Grid Ads</h2>
+<form id="grid-ad-form">
+    <label>Upload Ad Image (appears inside listings)</label>
+    <input type="file" id="gridAdFile" accept="image/*" required>
+    <button type="submit">➕ Add Grid Ad</button>
+</form>
+<div id="gridAd-preview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;"></div>
+
+<script>
+let properties = JSON.parse(localStorage.getItem("listings")) || [];
+let ads = JSON.parse(localStorage.getItem("ads")) || { left: "", right: "" };
+let gridAds = JSON.parse(localStorage.getItem("gridAds")) || [];
+
+// ✅ Render Listings (properties + ads)
+function renderPreview() {
+    const container = document.getElementById("listing-preview");
+    container.innerHTML = "";
+
+    let propertyIndex = 0;
+    let adIndex = 0;
+    let cardCount = 0;
+
+    while (propertyIndex < properties.length || adIndex < gridAds.length) {
+        if ((cardCount + 1) % 3 === 0 && adIndex < gridAds.length) {
+            let adImg = gridAds[adIndex];
+            container.innerHTML += `
+                <div class="listing ad-card">
+                    <img src="${adImg}" alt="Sponsored Ad">
+                    <div class="listing-details">
+                        <h3>Sponsored</h3>
+                        <p>Advertisement</p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="delete-btn" onclick="deleteGridAd(${adIndex})">🗑️ Delete Ad</button>
+                    </div>
+                </div>`;
+            adIndex++;
+        } else if (propertyIndex < properties.length) {
+            let item = properties[propertyIndex];
+            let firstImage = item.images?.length ? item.images[0] : "";
+            container.innerHTML += `
+                <div class="listing">
+                    <img src="${firstImage}" alt="${item.bhk} ${item.type}">
+                    <div class="listing-details">
+                        <h3>${item.bhk} - ${item.location}</h3>
+                        <p>${item.type}</p>
+                        <p class="price">₹${Number(item.price).toLocaleString()}</p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="edit-btn" onclick="editProperty(${propertyIndex})">✏️ Edit</button>
+                        <button class="delete-btn" onclick="deleteProperty(${propertyIndex})">🗑️ Delete</button>
+                    </div>
+                </div>`;
+            propertyIndex++;
+        }
+        cardCount++;
+    }
+}
+
+// ✅ Add / Update Property
+document.getElementById("property-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let idx = document.getElementById("editIndex").value;
+    let files = document.getElementById("imageFile").files;
+    let images = [];
+
+    function saveProperty(imgs) {
+        let newProperty = {
+            bhk: document.getElementById("bhk").value,
+            location: document.getElementById("location").value,
+            price: document.getElementById("price").value,
+            type: document.getElementById("type").value,
+            tenantType: document.getElementById("tenantType").value,
+            furnished: document.getElementById("furnished").value,
+            houseType: document.getElementById("houseType").value,
+            availability: document.getElementById("availability").value,
+            beds: document.getElementById("beds").value,
+            bathrooms: document.getElementById("bathrooms").value,
+            balconies: document.getElementById("balconies").value,
+            floor: document.getElementById("floor").value,
+            parking: document.getElementById("parking").value,
+            images: imgs
+        };
+
+        if (idx) {
+            properties[idx] = newProperty;
+            alert("✅ Property Updated!");
+        } else {
+            properties.push(newProperty);
+            alert("✅ Property Added!");
+        }
+
+        localStorage.setItem("listings", JSON.stringify(properties));
+        renderPreview();
+        e.target.reset();
+        document.getElementById("form-title").innerText = "Add Property";
+        document.getElementById("editIndex").value = "";
+    }
+
+    if (files.length > 0) {
+        let loaded = 0;
+        for (let file of files) {
+            let reader = new FileReader();
+            reader.onload = ev => { 
+                images.push(ev.target.result);
+                loaded++;
+                if (loaded === files.length) saveProperty(images);
+            };
+            reader.readAsDataURL(file);
+        }
+    } else {
+        if (idx) saveProperty(properties[idx].images);
+        else saveProperty([]);
+    }
+});
+
+// ✅ Edit Property
+function editProperty(index) {
+    let p = properties[index];
+    document.getElementById("bhk").value = p.bhk;
+    document.getElementById("location").value = p.location;
+    document.getElementById("price").value = p.price;
+    document.getElementById("type").value = p.type;
+    document.getElementById("tenantType").value = p.tenantType;
+    document.getElementById("furnished").value = p.furnished;
+    document.getElementById("houseType").value = p.houseType;
+    document.getElementById("availability").value = p.availability;
+    document.getElementById("beds").value = p.beds;
+    document.getElementById("bathrooms").value = p.bathrooms;
+    document.getElementById("balconies").value = p.balconies;
+    document.getElementById("floor").value = p.floor;
+    document.getElementById("parking").value = p.parking;
+
+    document.getElementById("editIndex").value = index;
+    document.getElementById("form-title").innerText = "Edit Property";
+    window.scrollTo({ top: document.querySelector(".forms").offsetTop, behavior: "smooth" });
+}
+
+// ✅ Delete Property
+function deleteProperty(index) {
+    if (confirm("❌ Delete this property?")) {
+        properties.splice(index, 1);
+        localStorage.setItem("listings", JSON.stringify(properties));
+        renderPreview();
+    }
+}
+
+// ✅ Delete Grid Ad
+function deleteGridAd(index) {
+    if (confirm("❌ Delete this ad?")) {
+        gridAds.splice(index, 1);
+        localStorage.setItem("gridAds", JSON.stringify(gridAds));
+        renderPreview();
+        renderGridAdPreview();
+    }
+}
+
+// ✅ Save Ads
+function saveAds() {
+    ads.left = document.getElementById("ad-left").value;
+    ads.right = document.getElementById("ad-right").value;
+    localStorage.setItem("ads", JSON.stringify(ads));
+    alert("✅ Ads Saved!");
+}
+
+// ✅ Add Grid Ads
+document.getElementById("grid-ad-form").addEventListener("submit", e => {
+    e.preventDefault();
+    let file = document.getElementById("gridAdFile").files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = ev => {
+        gridAds.push(ev.target.result);
+        localStorage.setItem("gridAds", JSON.stringify(gridAds));
+        renderPreview();
+        renderGridAdPreview();
+    };
+    reader.readAsDataURL(file);
+});
+
+// ✅ Render Grid Ads Preview
+function renderGridAdPreview() {
+    const container = document.getElementById("gridAd-preview");
+    container.innerHTML = "";
+    gridAds.forEach((ad, i) => {
+        container.innerHTML += `
+            <div style="position:relative;">
+                <img src="${ad}" style="width:100px;height:100px;object-fit:cover;border:1px solid #ccc;">
+                <button onclick="deleteGridAd(${i})" 
+                        style="position:absolute;top:2px;right:2px;
+                               background:red;color:#fff;border:none;
+                               border-radius:50%;width:20px;height:20px;
+                               cursor:pointer;">×</button>
+            </div>`;
+    });
+}
+
+// ✅ Init
+document.getElementById("ad-left").value = ads.left;
+document.getElementById("ad-right").value = ads.right;
+renderPreview();
+renderGridAdPreview();
+
+</script>
+</body>
+</html>

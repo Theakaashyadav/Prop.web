@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Listings</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+}
+
+/* Container */
+.container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Side Ads */
+.ad {
+    position: fixed;
+    top: var(--header-height, 60px);
+    width: 200px;
+    height: calc(100vh - var(--header-height, 60px));
+    background: #eee;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #777;
+    text-align: center;
+    z-index: 10;
+}
+.ad-left { left: 0; }
+.ad-right { right: 0; }
+
+/* Listings Section */
+.listings {
+    flex: 1;
+    margin: 0 220px;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* ✅ 3 cards per row */
+    gap: 20px;
+}
+
+/* Listing Card & Ad Card */
+.listing, .ad-card {
+    display: flex;
+    flex-direction: column; 
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.listing:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Image (same for both) */
+.listing img, .ad-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+/* Details */
+.listing-details {
+    padding: 12px;
+    flex: 1;
+}
+
+.listing-details h3 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1C1F33; /* strong dark blue */
+}
+
+.listing-details p {
+    color: #555;
+    margin: 3px 0;
+    font-size: 14px;
+}
+
+/* Highlight Price */
+/* Highlight Price */
+.listing-details p.price {
+  color: #000;         /* dark black */
+  font-weight: 900;    /* extra bold */
+  font-size: 18px;
+  margin: 5px 0;
+  display: inline-block;
+}
+
+
+/* Features Grid */
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+}
+.features div {
+    background: #f0f0f0;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #333;
+}
+.features i {
+    color: #D4AF37; /* accent gold */
+    font-size: 13px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.9);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.close-btn:hover {
+  color: #ff4444;
+}
+
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 30px;
+  user-select: none;
+  transition: 0.3s;
+}
+.prev { left: 20px; }
+.next { right: 20px; }
+.prev:hover, .next:hover { color: #ff4444; }
+
+
+/* ✅ Responsive Breakpoints */
+@media (max-width: 1199px) {
+    .listings {
+        margin: 0 20px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .ad { display: none; }
+}
+
+@media (max-width: 767px) {
+    .listings {
+        margin: 0 10px;
+        grid-template-columns: 1fr;
+    }
+    .listing img, .ad-card img {
+        height: 200px;
+    }
+}
+
+/* Ad Card styling */
+.ad-card {
+    border: 2px dashed #aaa;
+    background: #fafafa;
+}
+.ad-card {
+    border: 2px dashed #aaa;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;   /* full height like property cards */
+
+}
+.ad-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.ad-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sponsored-label {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 215, 0, 0.95); /* golden badge */
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 6px;
+  z-index: 2;
+}
+
+
+
+.ad-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* fills entire area */
+    border-radius: 8px;
+}
+
+.ad-card .listing-details h3 {
+    color: #b00;  /* red highlight for sponsored */
+    font-style: italic;
+}
+.get-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1C1F33;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.get-contact-btn:hover {
+  background: #2d3250;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+</style>
+
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="container">
+    <div class="ad ad-left" id="ad-left"></div>
+
+    <div class="listings" id="listing-container">
+        <!-- Listings & Ad cards will load here -->
+    </div>
+
+    <div class="ad ad-right" id="ad-right"></div>
+</div>
+
+<!-- Image Modal -->
+<!-- Modal -->
+<div id="imageModal" class="modal">
+  <span class="close-btn" onclick="closeModal()">&times;</span>
+  <img class="modal-content" id="modalImage">
+  <a class="prev" onclick="prevImage()">&#10094;</a>
+  <a class="next" onclick="nextImage()">&#10095;</a>
+</div>
+
+
+<script>
+// ---- Load properties & ads ----
+let properties = JSON.parse(localStorage.getItem("listings")) || [];
+let ads = JSON.parse(localStorage.getItem("ads")) || { left: "Ad Space", right: "Ad Space" };
+let gridAds = JSON.parse(localStorage.getItem("gridAds")) || [];
+
+// Render side ads (if present)
+const adLeftEl = document.getElementById("ad-left");
+const adRightEl = document.getElementById("ad-right");
+if (adLeftEl) adLeftEl.innerHTML = ads.left || "";
+if (adRightEl) adRightEl.innerHTML = ads.right || "";
+
+// ✅ Helpers
+function shuffleArray(array) {
+  return array
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
+function normalizeText(text) {
+  return (text || "").toString().toLowerCase().trim();
+}
+function getBhkNumber(bhk) {
+  if (bhk == null) return NaN;
+  if (typeof bhk === "number") return bhk;
+  const m = String(bhk).match(/\d+/);
+  return m ? parseInt(m[0], 10) : NaN;
+}
+function getPriceNumber(price) {
+  if (price == null) return NaN;
+  const n = Number(String(price).replace(/[^0-9.]/g, ""));
+  return Number.isFinite(n) ? n : NaN;
+}
+
+// ✅ Apply filters
+function applyFilters() {
+  const header = document.getElementById("header") || document;
+
+  const searchVal = normalizeText(header.querySelector("#searchInput")?.value || "");
+  const budget = header.querySelector("#budgetFilter")?.value || "";
+  const bhk = header.querySelector("#bhkFilter")?.value || "";
+  const furnish = header.querySelector("#furnishFilter")?.value || "";
+  const tenant = header.querySelector("#tenantFilter")?.value || "";
+  const houseType = header.querySelector("#houseType")?.value || "";
+  const propertyType = header.querySelector("#typeFilter")?.value || "";
+  const sort = header.querySelector("#sortFilter")?.value || "";
+
+  let filtered = properties.filter(p => {
+    if (searchVal) {
+      const combined = normalizeText(`${p.bhk} ${p.type} ${p.propertyType} ${p.location} ${p.furnished} ${p.tenantType}`);
+      if (!combined.includes(searchVal)) return false;
+    }
+
+    if (budget) {
+      const price = getPriceNumber(p.price);
+      if (!Number.isFinite(price)) return false;
+      if (budget === "under10" && !(price < 10000)) return false;
+      if (budget === "10-25" && !(price >= 10000 && price <= 25000)) return false;
+      if (budget === "25-50" && !(price >= 25000 && price <= 50000)) return false;
+      if (budget === "50plus" && !(price > 50000)) return false;
+    }
+
+    if (bhk) {
+      const b = getBhkNumber(p.bhk);
+      if (!Number.isFinite(b)) return false;
+      if (bhk === "4plus" && !(b >= 4)) return false;
+      if (bhk !== "4plus" && b !== parseInt(bhk, 10)) return false;
+    }
+
+    if (furnish) {
+      const f = normalizeText(p.furnished);
+      if (furnish === "fully" && !f.includes("fully")) return false;
+      if (furnish === "semi" && !f.includes("semi")) return false;
+      if (furnish === "unfurnished" && !f.includes("unfurnished")) return false;
+    }
+
+    if (tenant) {
+      const t = normalizeText(p.tenantType);
+      if (!t.includes(normalizeText(tenant))) return false;
+    }
+
+    if (houseType) {
+      const h = normalizeText(p.houseType);
+      if (!h.includes(normalizeText(houseType))) return false;
+    }
+
+    if (propertyType) {
+      const type = normalizeText(p.propertyType || p.type);
+      if (type !== normalizeText(propertyType)) return false;
+    }
+
+    return true;
+  });
+
+  if (sort === "low-high") {
+    filtered.sort((a, b) => getPriceNumber(a.price) - getPriceNumber(b.price));
+  } else if (sort === "high-low") {
+    filtered.sort((a, b) => getPriceNumber(b.price) - getPriceNumber(a.price));
+  } else if (sort === "newest") {
+    const getTime = (p) => {
+      const c = p.createdAt || p.postedAt || p.addedAt || p.timestamp || p.date;
+      const t = c ? new Date(c).getTime() : 0;
+      return Number.isFinite(t) ? t : 0;
+    };
+    filtered.sort((a, b) => getTime(b) - getTime(a));
+  }
+
+  renderListings(filtered);
+}
+
+// ---- Modal Gallery ----
+let currentProperty = null;
+let currentImageIndex = 0;
+
+function openModal(property, imageIndex = 0) {
+  currentProperty = property;
+  currentImageIndex = imageIndex;
+
+  const modal = document.getElementById("imageModal");
+  if (modal) modal.style.display = "flex";
+
+  showImage();
+}
+function closeModal() {
+  const modal = document.getElementById("imageModal");
+  if (modal) modal.style.display = "none";
+}
+function showImage() {
+  if (!currentProperty || !currentProperty.images || !currentProperty.images.length) return;
+  const img = currentProperty.images[currentImageIndex];
+  document.getElementById("modalImage").src = img;
+}
+function nextImage() {
+  if (!currentProperty || !currentProperty.images || !currentProperty.images.length) return;
+  currentImageIndex = (currentImageIndex + 1) % currentProperty.images.length;
+  showImage();
+}
+function prevImage() {
+  if (!currentProperty || !currentProperty.images || !currentProperty.images.length) return;
+  currentImageIndex = (currentImageIndex - 1 + currentProperty.images.length) % currentProperty.images.length;
+  showImage();
+}
+
+// ✅ Keyboard navigation for modal
+document.addEventListener("keydown", (e) => {
+  if (document.getElementById("imageModal").style.display === "flex") {
+    if (e.key === "ArrowRight") nextImage();
+    if (e.key === "ArrowLeft") prevImage();
+    if (e.key === "Escape") closeModal();
+  }
+});
+
+// ✅ Render listings
+function renderListings(list = properties) {
+  const container = document.getElementById("listing-container");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const adObjects = (gridAds || []).map(adImg => ({ isAd: true, image: adImg }));
+  let allItems = shuffleArray([...list, ...adObjects]);
+
+  allItems.forEach((item) => {
+    if (item.isAd) {
+      container.innerHTML += `
+        <div class="listing ad-card">
+          <span class="sponsored-label">Sponsored</span>
+          <img src="${item.image}" alt="Sponsored Ad">
+        </div>
+      `;
+    } else {
+      const firstImage = (item.images && item.images.length > 0) ? item.images[0] : "";
+
+      const card = document.createElement("div");
+      card.className = "listing";
+      card.innerHTML = `
+        <img src="${firstImage}" alt="${item.bhk} BHK ${item.type}" class="listing-img">
+        <div class="listing-details">
+          <h3>${item.bhk} - ${item.location}</h3>
+          <p class="price"><strong>₹${Number(item.price).toLocaleString()}</strong></p>
+          <p>Type: ${item.type || item.propertyType || "-"}</p>
+          <div class="features">
+            <div><i class="fa fa-bed"></i> ${item.beds || 0} Beds</div>
+            <div><i class="fa fa-bath"></i> ${item.bathrooms || 0} Baths</div>
+            <div><i class="fa fa-building"></i> Floor: ${item.floor || "-"}</div>
+            <div><i class="fa fa-couch"></i> ${item.furnished || "-"}</div>
+            <div><i class="fa fa-parking"></i> Parking: ${item.parking || "-"}</div>
+            <div><i class="fa fa-door-open"></i> Balconies: ${item.balconies || 0}</div>
+            <div><i class="fa fa-calendar-check"></i> Available: ${item.availability || "-"}</div>
+            <div><i class="fa fa-user"></i> Tenant: ${item.tenantType || "-"}</div>
+            <div><i class="fa fa-home"></i> Occupancy: ${item.houseType || "-"}</div>
+          </div>
+          <button class="get-contact-btn"><i class="fa fa-phone"></i> Get Contact</button>
+        </div>
+      `;
+
+      // ✅ Open modal on image click
+      card.querySelector(".listing-img").addEventListener("click", () => {
+        openModal(item, 0);
+      });
+
+      // ✅ Get Contact button
+      card.querySelector(".get-contact-btn").addEventListener("click", () => {
+        localStorage.setItem("selectedProperty", JSON.stringify(item));
+        window.open("getcontact.html", "_blank");
+      });
+
+      container.appendChild(card);
+    }
+  });
+}
+
+// ✅ Load header & attach live filters
+fetch("header.html")
+  .then(res => res.text())
+  .then(html => {
+    const header = document.getElementById("header");
+    header.innerHTML = html;
+    document.documentElement.style.setProperty("--header-height", header.offsetHeight + "px");
+
+    const searchInput = header.querySelector("#searchInput");
+    const filters = [
+      "#budgetFilter",
+      "#bhkFilter",
+      "#furnishFilter",
+      "#tenantFilter",
+      "#houseType",
+      "#typeFilter",
+      "#sortFilter"
+    ].map(id => header.querySelector(id)).filter(Boolean);
+
+    if (searchInput) searchInput.addEventListener("input", applyFilters);
+    filters.forEach(sel => sel.addEventListener("change", applyFilters));
+
+    const clearBtn = header.querySelector("#clearFiltersBtn") || header.querySelector(".clear-btn");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        if (searchInput) searchInput.value = "";
+        filters.forEach(sel => sel.selectedIndex = 0);
+        renderListings(properties);
+      });
+    }
+  });
+
+// Initial render
+renderListings();
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
